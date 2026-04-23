@@ -24,23 +24,29 @@
 
       <div class="flex items-center justify-between">
 
-        <div class="flex items-center gap-6 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
 
-          <div class="flex flex-col gap-1.5 w-1/2">
-            <label class="text-gray-800 font-medium">Project Name</label>
-            <input v-model="pro.projectname"
-              class="border-2 border-gray-300 text-gray-800 py-2 px-4"
-              placeholder="Project Name" />
-          </div>
+  <!-- Project Name -->
+  <div class="flex flex-col gap-2">
+    <label class="text-gray-800 font-medium">Project Name</label>
+    <input 
+      v-model="pro.projectname"
+      class="w-full border-2 border-gray-300 text-gray-800 py-2 px-3 text-sm md:text-base"
+      placeholder="Project Name"
+    />
+  </div>
 
-          <div class="flex flex-col gap-1.5 w-1/2">
-            <label class="text-gray-800 font-medium">Project Link</label>
-            <input v-model="pro.projectlink"
-              class="border-2 border-gray-300 text-gray-800 py-2 px-4"
-              placeholder="https://..." />
-          </div>
+  <!-- Project Link -->
+  <div class="flex flex-col gap-2">
+    <label class="text-gray-800 font-medium">Project Link</label>
+    <input 
+      v-model="pro.projectlink"
+      class="w-full border-2 border-gray-300 text-gray-800 py-2 px-3 text-sm md:text-base"
+      placeholder="https://..."
+    />
+  </div>
 
-        </div>
+</div>
 
 
         

@@ -19,30 +19,33 @@
       <!-- EXPERIENCES -->
       <div id="contentExperience" >
         <div v-for="(exp, index) in experiences" :key="index" class="border-2 border-gray-300 p-4 mt-5 rounded relative">
-          <div class="absolute right-3 top-2 text-red-400 cursor-pointer hover:text-red-500" @click="RemoveExperience(index)">
+          <div class="absolute right-3 top-2 text-gray-400 cursor-pointer hover:text-red-500" @click="RemoveExperience(index)">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
-          <div class="flex items-center justify-start gap-6 w-full">
-            
-            <div class="flex gap-1.5 flex-col">
-              <label class="text-gray-800 text-medium font-medium">Company</label>
-              <input 
-                v-model="exp.company"
-                class="border-2 border-gray-300 text-gray-800 py-2 px-4" 
-                placeholder="Company" 
-              />
-            </div>
 
-            <div class="flex gap-1.5 flex-col">
-              <label class="text-gray-800 text-lg font-medium">Role</label>
-              <input 
-                v-model="exp.role"
-                class="border-2 border-gray-300 text-gray-800 py-2 px-4" 
-                placeholder="Role" 
-              />
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
 
-          </div>
+  <!-- Company -->
+  <div class="flex flex-col gap-2">
+    <label class="text-gray-800 font-medium">Company</label>
+    <input 
+      v-model="exp.company"
+      class="w-full border-2 border-gray-300 text-gray-800 py-2 px-3 text-sm md:text-base"
+      placeholder="Company"
+    />
+  </div>
+
+  <!-- Role -->
+  <div class="flex flex-col gap-2">
+    <label class="text-gray-800 font-medium">Role</label>
+    <input 
+      v-model="exp.role"
+      class="w-full border-2 border-gray-300 text-gray-800 py-2 px-3 text-sm md:text-base"
+      placeholder="Role"
+    />
+  </div>
+
+</div>
           
           <div>
             <div class="flex flex-col mt-4">
