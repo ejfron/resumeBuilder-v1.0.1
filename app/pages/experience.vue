@@ -18,12 +18,16 @@
 
       <!-- EXPERIENCES -->
       <div id="contentExperience" >
-        <div v-for="(exp, index) in experiences" :key="index" class="border-2 border-gray-300 p-4 mt-5 rounded relative">
-          <div class="absolute right-3 top-2 text-gray-400 cursor-pointer hover:text-red-500" @click="RemoveExperience(index)">
+        <div v-for="(exp, index) in experiences" :key="index" class="flex border-2 border-gray-300 p-4 mt-5 rounded relative">
+          <div v-if="experiences.length > 1" class="absolute right-3 top-2 text-gray-400 cursor-pointer hover:text-red-500" @click="RemoveExperience(index)">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </div>
+          <div class=" flex items-start justify-start pr-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grip-vertical-icon lucide-grip-vertical"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+          </div>
+          <div class="flex flex-col">
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 w-full">
 
   <!-- Company -->
   <div class="flex flex-col gap-2">
@@ -45,7 +49,7 @@
     />
   </div>
 
-</div>
+        </div>
           
           <div>
             <div class="flex flex-col mt-4">
@@ -66,6 +70,9 @@
               ></textarea>
             </div>
           </div>
+          </div>
+
+          
 
         </div>
       </div>
