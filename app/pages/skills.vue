@@ -12,7 +12,7 @@
     <div class="flex flex-col gap-2 w-full">
       <!-- Input + Add button -->
       <div id="addingcontent" class="flex items-center justify-center gap-3">
-        <input v-model="input" class="input w-fit border-2 text-medium border-gray-300 px-2.5 py-1 flex-1 text-gray-500" placeholder="Add a skill (e.g React.js)" />
+        <input @keyup.enter="addSkillFromInput" v-model="input" class="input w-fit border-2 text-medium border-gray-300 px-2.5 py-1 flex-1 text-gray-500" placeholder="Add a skill (e.g React.js)" />
         <button class="bg-blue-500 text-white px-4 py-1.5 rounded hover:bg-blue-600" @click="addSkillFromInput">Add</button>
       </div>
 
@@ -55,7 +55,6 @@ import { dataSkills } from '~/composables/dataskills'
 const { resume } = useResume()
 const input = ref('')
 
-// Create a reactive copy of the suggestion list
 const availableSkills = ref([...dataSkills])
 
 // Add skill from input
@@ -81,9 +80,21 @@ const addSkillFromSuggest = (skillName) => {
   }
 }
 
-// Remove skill from resume – optionally add it back to suggestions? 
-// (Not requested, but often desired. I'll leave it out for now.)
+
 const removeSkill = (index) => {
+  const removedSkill = resume.value.skills[index]
+
+  // remove from resume
   resume.value.skills.splice(index, 1)
+
+  // add back to suggestions (avoid duplicates)
+  if (!availableSkills.value.includes(removedSkill)) {
+     const originalIndex = dataSkills.indexOf(removedSkill)
+      if (originalIndex !== -1) {
+        availableSkills.value.splice(originalIndex, 0, removedSkill)
+      } else {
+    availableSkills.value.push(removedSkill)
+  }
+}
 }
 </script>

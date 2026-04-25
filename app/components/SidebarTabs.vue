@@ -235,27 +235,160 @@ const generatePdf = async () => {
   try {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js')
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js')
+
     if (!window.pdfMake) throw new Error('pdfMake not loaded')
     const pdfMake = window.pdfMake
 
     const { personal, about, skills, experience, project, education } = resumeData
 
-    const formatBulletList = (description) => {
-      const lines = description ? description.split('\n').filter(l => l.trim()) : []
-      if (lines.length === 0) return []
-      return [{
-        ul: lines.map(line => ({
-          text: line,
-          style: 'bulletItem',
-          markerColor: '#2563eb'
-        })),
-        margin: [0, 2, 0, 4]
-      }]
-    }
+    const separatorLine = (mt = 2, mb = 2) => ({
+      canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 6, color: '#000' }],
+      margin: [0, mt, 0, mb]
+    })
 
-    const separatorLine = (marginTop = 2, marginBottom = 2) => ({
-      canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 2, color: '#e5e7eb' }],
-      margin: [0, marginTop, 0, marginBottom]
+    // 🔥 EXPERIENCE TIMELINE
+    const timelineExperience = experience.map((exp, index) => {
+      const isLast = index === experience.length - 1
+
+      return {
+        columns: [
+          {
+            width: 20,
+            stack: [
+              {
+                canvas: [
+                  {
+                    type: 'ellipse',
+                    x: 5,
+                    y: 5,
+                    r1: 3,
+                    r2: 3,
+                    color: '#2563eb'
+                  }
+                ],
+                margin: [0, 2, 0, 0]
+              },
+              ...(!isLast ? [{
+                canvas: [
+                  {
+                    type: 'line',
+                    x1: 5,
+                    y1: 0,
+                    x2: 5,
+                    y2: 55,
+                    lineWidth: 1,
+                    color: '#d1d5db'
+                  }
+                ]
+              }] : [])
+            ]
+          },
+
+          {
+            width: '*',
+            stack: [
+              {
+                columns: [
+                  {
+                    stack: [
+                      { text: exp.role || '', style: 'jobTitle' },
+                      { text: exp.company || '', style: 'company' }
+                    ]
+                  },
+                  {
+                    text: exp.date || '',
+                    alignment: 'right',
+                    style: 'date'
+                  }
+                ],
+                margin: [0, 2, 0, 2]
+              },
+
+              {
+                text: exp.description || '',
+                style: 'text',
+                margin: [0, 2, 0, 0]
+              }
+            ]
+          }
+        ],
+        margin: [0, 4, 0, 10]
+      }
+    })
+
+    // 🔥 PROJECTS TIMELINE (UPDATED)
+    const timelineProjects = project.map((p, index) => {
+      const isLast = index === project.length - 1
+
+      return {
+        columns: [
+          // LEFT BULLET + LINE
+          {
+            width: 20,
+            stack: [
+              {
+                canvas: [
+                  {
+                    type: 'ellipse',
+                    x: 5,
+                    y: 5,
+                    r1: 3,
+                    r2: 3,
+                    color: '#2563eb'
+                  }
+                ],
+                margin: [0, 2, 0, 0]
+              },
+              ...(!isLast ? [{
+                canvas: [
+                  {
+                    type: 'line',
+                    x1: 5,
+                    y1: 0,
+                    x2: 5,
+                    y2: 55,
+                    lineWidth: 1,
+                    color: '#d1d5db'
+                  }
+                ]
+              }] : [])
+            ]
+          },
+
+          // RIGHT CONTENT
+          {
+            width: '*',
+            stack: [
+              {
+                columns: [
+                  {
+                    text: p.projectname || '',
+                    style: 'projectTitle'
+                  },
+                  {
+                    text: p.projectlink || '',
+                    alignment: 'right',
+                    style: 'link'
+                  }
+                ]
+              },
+
+              // ✅ NO BULLETS — CLEAN TEXT ONLY
+              {
+                text: p.projectdescription || '',
+                style: 'text',
+                margin: [0, 2, 0, 2]
+              },
+
+              {
+                text: (p.projectstack || []).join('  '),
+                style: 'techStack'
+              }
+            ]
+          }
+        ],
+        margin: [0, 4, 0, 10]
+      }
     })
 
     const docDefinition = {
@@ -268,45 +401,23 @@ const generatePdf = async () => {
             separatorLine(5, 8)
           ]
         },
+
         { text: 'ABOUT ME', style: 'section' },
         { text: about || '', style: 'aboutText', margin: [0, 2, 0, 5] },
         separatorLine(2, 5),
+
         { text: 'SKILLS', style: 'section' },
-        { text: skills.join('  '), style: 'skillsText', margin: [0, 2, 0, 5] },
+        { text: skills.join(',  '), style: 'skillsText', margin: [0, 2, 0, 5] },
         separatorLine(2, 5),
+
         { text: 'EXPERIENCE', style: 'section' },
-        ...experience.map(exp => [
-          {
-            columns: [
-              { stack: [{ text: exp.role || '', style: 'jobTitle' }, { text: exp.company || '', style: 'company' }] },
-              { text: exp.date || '', alignment: 'right', style: 'date' }
-            ],
-            margin: [0, 2, 0, 2]
-          },
-          ...formatBulletList(exp.description)
-        ]).flat(),
+        ...timelineExperience,
         separatorLine(2, 5),
+
         { text: 'PROJECTS', style: 'section' },
-        ...project.map(p => [
-          {
-            columns: [
-              {
-                width: 20,
-                text: '💻',            // ✅ sticker icon (no image, no errors)
-                style: 'projectIcon'
-              },
-              {
-                stack: [
-                  { columns: [{ text: p.projectname || '', style: 'projectTitle' }, { text: p.projectlink || '', alignment: 'right', style: 'link' }] },
-                  { text: p.projectdescription || '', style: 'text', margin: [0, 2, 0, 2] },
-                  { text: (p.projectstack || []).join('  '), style: 'techStack' }
-                ]
-              }
-            ],
-            margin: [0, 4, 0, 6]
-          }
-        ]).flat(),
+        ...timelineProjects,
         separatorLine(2, 5),
+
         { text: 'EDUCATION', style: 'section' },
         ...education.map(edu => ({
           stack: [
@@ -315,40 +426,43 @@ const generatePdf = async () => {
           ],
           margin: [0, 2, 0, 5]
         })),
+
         separatorLine(2, 2)
       ],
-      defaultStyle: { fontSize: 9, color: '#374151', lineHeight: 1.3 },
+
+      defaultStyle: {
+        fontSize: 9,
+        color: '#374151',
+        lineHeight: 1.3
+      },
+
       styles: {
-  header: { fontSize: 20, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
-  subheader: { fontSize: 10, bold: true, color: '#4b5563', margin: [0, 1, 0, 1] },      // was 12
-  contact: { fontSize: 8, color: '#6b7280' },                                            // was 9
-  section: { fontSize: 10, bold: true, color: '#000000', margin: [0, 4, 0, 2] },        // was 12
-  aboutText: { fontSize: 8, lineHeight: 1.3 },                                           // was 9
-  skillsText: { fontSize: 8, italics: true },                                            // was 9
-  jobTitle: { fontSize: 10, bold: true, color: '#1f2937' },
-  company: { fontSize: 8, color: '#2563eb' },                                            // was 9
-  date: { fontSize: 7, color: '#9ca3af' },                                                // was 8
-  bulletItem: { fontSize: 8, lineHeight: 1.3 },                                           // was 9
-  projectIcon: { fontSize: 14, alignment: 'center' },
-  projectTitle: { fontSize: 10, bold: true, color: '#1f2937' },
-  link: { fontSize: 7, color: '#2563eb' },                                                // was 8
-  text: { fontSize: 8, lineHeight: 1.3 },                                                 // was 9
-  techStack: { fontSize: 7, italics: true, color: '#4b5563' },                            // was 8
-  school: { fontSize: 10, bold: true, color: '#1f2937' },
-  educationDetail: { fontSize: 8, italics: true, color: '#4b5563' }                       // was 9
-}
+        header: { fontSize: 20, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
+        subheader: { fontSize: 10, bold: true, color: '#4b5563', margin: [0, 1, 0, 1] },
+        contact: { fontSize: 8, color: '#6b7280' },
+        section: { fontSize: 10, bold: true, color: '#000000', margin: [0, 4, 0, 2] },
+        aboutText: { fontSize: 8, lineHeight: 1.3 },
+        skillsText: { fontSize: 8, italics: true },
+        jobTitle: { fontSize: 10, bold: true, color: '#1f2937' },
+        company: { fontSize: 8, color: '#2563eb' },
+        date: { fontSize: 7, color: '#9ca3af' },
+        text: { fontSize: 8, lineHeight: 1.3 },
+        projectTitle: { fontSize: 10, bold: true, color: '#1f2937' },
+        link: { fontSize: 7, color: '#2563eb' },
+        techStack: { fontSize: 7, italics: true, color: '#4b5563' },
+        school: { fontSize: 10, bold: true, color: '#1f2937' },
+        educationDetail: { fontSize: 8, italics: true, color: '#4b5563' }
+      }
     }
 
     pdfMake.createPdf(docDefinition).download(`${personal.name}.pdf`)
   } catch (err) {
     console.error('PDF generation failed:', err)
-    alert('Failed to load PDF library. Please check your internet connection and try again.')
+    alert('Failed to load PDF library.')
   }
 }
 
 defineExpose({ generatePdf })
-
-
 </script>
 
 
