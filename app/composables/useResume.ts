@@ -26,7 +26,15 @@ export const useResume = () => {
           ]
         }
     ],
-    education: [],
+    education: [
+        {
+          school: '',
+          degree: '',
+          field: '',
+          duration: '',
+          location: ''
+        }
+    ],
     about: ''
   }))
 

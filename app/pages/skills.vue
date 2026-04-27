@@ -1,100 +1,137 @@
 <template>
   <div class="mt-3">
+
+    <!-- HEADER -->
     <div class="flex items-center gap-2 mb-4 text-blue-500">
-      <div class="icontitle">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
-        </svg>
-      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m18 16 4-4-4-4"/>
+        <path d="m6 8-4 4 4 4"/>
+        <path d="m14.5 4-5 16"/>
+      </svg>
       <div class="font-semibold text-lg">Skills</div>
     </div>
 
-    <div class="flex flex-col gap-2 w-full">
-      <!-- Input + Add button -->
-      <div id="addingcontent" class="flex items-center justify-center gap-3">
-        <input @keyup.enter="addSkillFromInput" v-model="input" class="input w-fit border-2 text-medium border-gray-300 px-2.5 py-1 flex-1 text-gray-500" placeholder="Add a skill (e.g React.js)" />
-        <button class="bg-blue-500 text-white px-4 py-1.5 rounded hover:bg-blue-600" @click="addSkillFromInput">Add</button>
-      </div>
-
-    
-    <div id="skillsdisplaytoadd" class="flex flex-wrap gap-2 mt-3   text-gray-700 text-sm">
-            <div
-            v-for="(skill, i) in availableSkills"
-            :key="i"
-           class="badge bg-gray-100 rounded-4xl flex items-center content-center gap-2.5 px-5 py-1.5 cursor-pointer hover:bg-gray-200 hover:text-blue-500"
-            @click="addSkillFromSuggest(skill)"
-            >
-            <span>{{ skill }}</span>
-        </div>
-        </div>
-
+    <!-- INPUT -->
+    <div class="flex gap-3 w-full">
+      <input
+        v-model="input"
+        @keyup.enter="addSkillFromInput"
+        class="w-full border-2 text-gray-600 border-gray-300 px-3 py-2 rounded text-sm focus:outline-none focus:border-blue-500"
+        placeholder="Add a skill (e.g React.js)"
+      />
+      <button
+        @click="addSkillFromInput"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
+      >
+        Add
+      </button>
     </div>
 
-    <!-- Display added skills (from resume) with remove icon -->
-    <div class="flex flex-wrap gap-2 mt-6  text-gray-700 text-sm">
+    <!-- SUGGESTED SKILLS (DYNAMIC) -->
+    <div class="mt-5 space-y-4 text-sm text-gray-700">
+      <div
+        v-for="(skills, category) in skillGroups"
+        :key="category"
+      >
+        <h3 class="font-medium mb-2 capitalize">
+          {{ formatCategory(category) }}
+        </h3>
+
+        <div class="flex flex-wrap gap-2">
+          <div
+            v-for="(skill, i) in skills"
+            :key="category + '-' + i"
+            @click="addSkillFromSuggest(skill)"
+            class="px-4 py-1.5 bg-gray-100 rounded-full cursor-pointer hover:bg-gray-200 hover:text-blue-500"
+          >
+            {{ skill }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SELECTED SKILLS -->
+    <div class="flex flex-wrap gap-2 mt-6 text-sm text-gray-700">
       <div
         v-for="(skill, index) in resume.skills"
         :key="index"
-        class="badge bg-gray-100 rounded-4xl flex items-center content-center gap-2.5 px-5 py-1.5 cursor-pointer hover:bg-gray-200 hover:text-blue-500"
+        class="flex items-center gap-2 px-4 py-1.5 bg-gray-100 rounded-full hover:bg-gray-200"
       >
         <span>{{ skill }}</span>
-        <span @click="removeSkill(index)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+        <button @click="removeSkill(index)" class="hover:text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
           </svg>
-        </span>
+        </button>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useResume } from '~/composables/useResume'
 import { dataSkills } from '~/composables/dataskills'
 
 const { resume } = useResume()
 const input = ref('')
 
-const availableSkills = ref([...dataSkills])
+// 🔥 dynamic skill groups
+const skillGroups = ref(JSON.parse(JSON.stringify(dataSkills)))
 
-// Add skill from input
+// format category names
+const formatCategory = (key) => {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+}
+
+// Add from input
 const addSkillFromInput = () => {
   const skill = input.value.trim()
-  if (skill && !resume.value.skills.includes(skill)) {
-    resume.value.skills.push(skill)
-    // Optionally remove from suggestions if it exists there
-    const index = availableSkills.value.indexOf(skill)
-    if (index !== -1) availableSkills.value.splice(index, 1)
-    input.value = ''
-  }
+  if (!skill || resume.value.skills.includes(skill)) return
+
+  resume.value.skills.push(skill)
+  removeFromAllGroups(skill)
+
+  input.value = ''
 }
 
-// Add skill from suggestion and remove it from the suggestion list
-const addSkillFromSuggest = (skillName) => {
-  const skill = skillName.trim()
-  if (skill && !resume.value.skills.includes(skill)) {
-    resume.value.skills.push(skill)
-    // Remove from available suggestions
-    const index = availableSkills.value.indexOf(skill)
-    if (index !== -1) availableSkills.value.splice(index, 1)
-  }
+// Add from suggestion
+const addSkillFromSuggest = (skill) => {
+  if (resume.value.skills.includes(skill)) return
+
+  resume.value.skills.push(skill)
+  removeFromAllGroups(skill)
 }
 
+// 🔥 remove from ALL categories
+const removeFromAllGroups = (skill) => {
+  Object.keys(skillGroups.value).forEach(category => {
+    const index = skillGroups.value[category].indexOf(skill)
+    if (index !== -1) {
+      skillGroups.value[category].splice(index, 1)
+    }
+  })
+}
 
+// Remove skill
 const removeSkill = (index) => {
   const removedSkill = resume.value.skills[index]
-
-  // remove from resume
   resume.value.skills.splice(index, 1)
 
-  // add back to suggestions (avoid duplicates)
-  if (!availableSkills.value.includes(removedSkill)) {
-     const originalIndex = dataSkills.indexOf(removedSkill)
-      if (originalIndex !== -1) {
-        availableSkills.value.splice(originalIndex, 0, removedSkill)
-      } else {
-    availableSkills.value.push(removedSkill)
-  }
-}
+  // return to correct category
+  Object.keys(dataSkills).forEach(category => {
+    if (dataSkills[category].includes(removedSkill)) {
+      const originalIndex = dataSkills[category].indexOf(removedSkill)
+      skillGroups.value[category].splice(originalIndex, 0, removedSkill)
+    }
+  })
 }
 </script>
