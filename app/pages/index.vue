@@ -20,7 +20,8 @@ useHead({
       type: 'image/png',
       href: '/images/49f57e30-f4b5-469d-a453-398b30982f16.png'
     }
-  ]
+  ],
+  title: 'Resume Builder - EJFrondDev'
 })
 </script>
 
